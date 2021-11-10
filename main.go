@@ -1,4 +1,4 @@
-package main
+package gonotion
 
 import (
 	"bytes"
@@ -46,6 +46,17 @@ type Page struct {
 	Url            *string              `json:"url,omitempty"`
 }
 
+func (p *Page) GetTitle() string {
+	props := *p.Properties
+	titleProp := props["Name"]
+	titleArr := *titleProp.Title
+	agg := ""
+	for _, el := range titleArr {
+		agg += *el.Text.Content
+	}
+	return agg
+}
+
 type Property struct {
 	Id      *string      `json:"id,omitempty"`
 	Type    *string      `json:"type,omitempty"`
@@ -69,13 +80,17 @@ type TitleProp struct {
 
 type TextProp struct {
 	Content *string `json:"content,omitempty"`
-	Link    *string `json:"link,omitempty"`
+	Link    *Link   `json:"link,omitempty"`
+}
+
+type Link struct {
+	Url *string `json:"url,omitempty"`
 }
 
 type FormulaProp struct {
-	Type   *string `json:"type,omitempty`
-	String *string `json:"string,omitempty`
-	Number *int    `json:"number,omitempty`
+	Type   *string `json:"type,omitempty"`
+	String *string `json:"string,omitempty"`
+	Number *int    `json:"number,omitempty"`
 }
 
 type FileObject struct {
