@@ -44,7 +44,31 @@ Example: Query a database
 
 	results, err := client.QueryDatabase("DATABASE_ID", &filter)
 ```
+## TODO
 
+### Databases
+- [x] Query Database
+- [] Create Database
+- [] Update Database
+- [] Retrieve a database
+
+### Pages
+- [x] Retrieve a Page
+- [] Create a Page
+- [x] Update Page
+- [] Delete/Archive Page
+
+### Blocks
+- [] Retrieve a Block
+- [] Update a Block
+- [] Retrieve Block Children
+- [] Append Block Children
+- [] Delete a Block
+
+### Users
+- [] Retrieve a User
+- [] List All Users
+- [] Retrieve Your Token's Bot User
 
 ## How to Contribute
 

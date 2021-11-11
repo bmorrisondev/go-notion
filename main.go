@@ -131,6 +131,11 @@ func (c *NotionClient) callApi(path string, method string, headers *map[string]s
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode < 200 || res.StatusCode > 299 {
+		out, _ := ioutil.ReadAll(res.Body)
+		return nil, errors.New(fmt.Sprintf("Failed to call %v with status %v, response: %v", path, res.StatusCode, string(out)))
+	}
+
 	out, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "(callApi) ioutil.readall")
@@ -169,58 +174,28 @@ func (c *NotionClient) QueryDatabase(databaseId string, queryFilter *QueryFilter
 }
 
 func (c *NotionClient) UpdatePage(pageId string, updates Page) error {
-	fmt.Println("pageId", pageId)
 	jsonData, err := json.Marshal(updates)
 	if err != nil {
-		return errors.Wrap(err, "(FetchPage) marshal json")
+		return errors.Wrap(err, "(UpdatePage) marshal json")
 	}
-
-	client := &http.Client{}
-	url := fmt.Sprintf("https://api.notion.com/v1/pages/%v", pageId)
-	req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return errors.Wrap(err, "(FetchPage) create request")
+	body := bytes.NewBuffer(jsonData)
+	headers := map[string]string{
+		"Content-Type": "application/json",
 	}
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", c.Token))
-	req.Header.Set("Notion-Version", "2021-05-13")
-	req.Header.Set("Content-Type", "application/json")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return errors.Wrap(err, "(FetchPage) exec request")
-	}
-
-	if res.StatusCode < 200 || res.StatusCode > 299 {
-		defer res.Body.Close()
-		out, _ := ioutil.ReadAll(res.Body)
-		return errors.New(fmt.Sprintf("Failed with status %v, body: %v", res.StatusCode, string(out)))
-	}
-
-	return nil
+	path := fmt.Sprintf("/pages/%v", pageId)
+	_, err = c.callApi(path, "PATCH", &headers, body)
+	return err
 }
 
 func (c *NotionClient) FetchPage(pageId string) (*Page, error) {
-	client := &http.Client{}
-	url := fmt.Sprintf("https://api.notion.com/v1/pages/%v", pageId)
-	req, err := http.NewRequest("GET", url, nil)
+	path := fmt.Sprintf("/pages/%v", pageId)
+	bytes, err := c.callApi(path, "GET", nil, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "(FetchPage) create request")
-	}
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", c.Token))
-	req.Header.Set("Notion-Version", "2021-05-13")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, errors.Wrap(err, "(FetchPage) exec request")
-	}
-	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, errors.Wrap(err, "(FetchPage) read body")
+		return nil, errors.Wrap(err, "(FetchPage) callApi")
 	}
 
 	var page Page
-	err = json.Unmarshal(body, &page)
+	err = json.Unmarshal(bytes, &page)
 	if err != nil {
 		return nil, errors.Wrap(err, "(FetchPage) unmarshal json")
 	}
