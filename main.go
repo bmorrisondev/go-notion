@@ -15,62 +15,21 @@ type NotionClient struct {
 	Token string
 }
 
-type QueryFilter struct {
-	Filter *Filter `json:"filter,omitempty"`
-	Sorts  *[]Sort `json:"sorts,omitempty"`
-}
-
-type Filter struct {
-	Property *string     `json:"property,omitempty"`
-	Date     *DateFilter `json:"date,omitempty"`
-}
-
-type DateFilter struct {
-	Before *string `json:"before,omitempty"`
-}
-
-type Sort struct {
-	Property  *string `json:"property,omitempty"`
-	Direction *string `json:"direction,omitempty"`
-}
-
-type Page struct {
-	Object         *string `json:"object,omitempty"`
-	Id             *string `json:"id,omitempty"`
-	CreatedTime    *string `json:"createdTime,omitempty"`
-	LastEditedTime *string `json:"lastEditedTime,omitempty"`
-	Archived       *bool   `json:"archived,omitempty"`
-	Icon           *FileObject
-	Cover          *FileObject
-	Properties     *map[string]Property `json:"properties,omitempty"`
-	Url            *string              `json:"url,omitempty"`
-}
-
-func (p *Page) GetTitle() string {
-	props := *p.Properties
-	titleProp := props["Name"]
-	titleArr := *titleProp.Title
-	agg := ""
-	for _, el := range titleArr {
-		agg += *el.Text.Content
-	}
-	return agg
-}
-
 type Property struct {
-	Id      *string      `json:"id,omitempty"`
-	Type    *string      `json:"type,omitempty"`
-	Name    *string      `json:"name,omitempty"`
-	Formula *FormulaProp `json:"formula,omitempty"`
-	Title   *[]TitleProp `json:"title,omitempty"`
-	Date    *DateProp    `json:"date,omitempty"`
+	Id       *string      `json:"id,omitempty"`
+	Type     *string      `json:"type,omitempty"`
+	Name     *string      `json:"name,omitempty"`
+	Formula  *FormulaProp `json:"formula,omitempty"`
+	Title    *[]TitleProp `json:"title,omitempty"`
+	Date     *DateProp    `json:"date,omitempty"`
+	Number   *int         `json:"number,omitempty"`
+	Checkbox *bool        `json:"checkbox,omitempty"`
 }
 
 type DateProp struct {
 	Start *string `json:"start,omitempty"`
 	End   *string `json:"end,omitempty"`
 }
-
 type TitleProp struct {
 	Type      *string   `json:"type,omitempty"`
 	Text      *TextProp `json:"text,omitempty"`
